@@ -1,0 +1,27 @@
+<div class="bh-p-10">
+    <div class="bh-flex bh-items-center bh-gap-4 bh-mb-2">
+        <input
+            type="text"
+            [(ngModel)]="search"
+            placeholder="Search..."
+            class="bh-border bh-border-solid bh-bg-white bh-p-2 bh-outline-0 bh-border-gray-200 focus:bh-border-gray-200 bh-rounded"
+        />
+    </div>
+
+    <ng-datatable
+        #datatable
+        [loading]="loading"
+        [rows]="rows"
+        [columns]="cols"
+        [hasCheckbox]="hasCheckbox"
+        [sortable]="true"
+        [columnFilter]="true"
+        [search]="search"
+        [rowClass]="rowClass"
+        [cellClass]="cellClass"
+    >
+        <ng-template slot="name" let-value="data">
+            <strong>{{ value.name }}</strong>
+        </ng-template>
+    </ng-datatable>
+</div>

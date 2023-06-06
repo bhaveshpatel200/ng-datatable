@@ -1,0 +1,139 @@
+<div class="bh-antialiased bh-relative bh-text-black bh-text-sm bh-font-normal">
+    <div class="bh-table-responsive" [ngClass]="{'bh-min-h-[300px]': currentLoader }" [style]="{ height: stickyHeader && height }">
+        <table [ngClass]="[skin]">
+            <thead [ngClass]="{ 'bh-sticky bh-top-0 bh-z-10': stickyHeader }">
+                <column-header
+                    #header1
+                    [all]="getProps"
+                    [checkAll]="selectedAll"
+                    (selectAll)="selectAll($event, true)"
+                    (sortChange)="sortChangeMethod($event)"
+                    (filterChange)="filterChangeMethod()"
+                ></column-header>
+            </thead>
+
+            <tbody>
+                <ng-container *ngIf="filterRowCount">
+                    <tr
+                        *ngFor="let item of filterItems; let i = index; trackBy:trackFilterItems.bind(this)"
+                        [ngClass]="[(isFunction(rowClass) ? rowClass(item) : rowClass), selectRowOnClick? 'bh-cursor-pointer':'']"
+                        (click)="onRowClick(item, i)"
+                        (dblclick)="onRowDoubleClick(item)"
+                    >
+                        <td *ngIf="hasCheckbox" [ngClass]="{'bh-sticky bh-left-0 bh-bg-[#f6f7fa]': stickyFirstColumn}">
+                            <div class="bh-checkbox" (click)="$event.stopPropagation();">
+                                <input type="checkbox" value="{{item[uniqueKey] ? item[uniqueKey] : i}}" [(ngModel)]="item.selected" (change)="checkboxChange();" />
+                                <div>
+                                    <icon-check class="check"></icon-check>
+                                </div>
+                            </div>
+                        </td>
+                        <ng-container *ngFor="let col of columns; let j = index">
+                            <td
+                                *ngIf="!col.hide"
+                                [ngClass]="[
+                                    (isFunction(cellClass) ? cellClass(item) : cellClass),
+                                    j === 0 && stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-[#f6f7fa]' : '',
+                                    hasCheckbox && j === 0 && stickyFirstColumn ? 'bh-left-[52px]' : '',
+                                    col.cellClass ? col.cellClass : ''
+                                    ]"
+                            >
+                                <ng-container *ngIf="hasSlot(col.field)">
+                                    <ng-container [ngTemplateOutlet]="getSlot(col.field)" [ngTemplateOutletContext]="{ data: item }"></ng-container>
+                                </ng-container>
+                                <div *ngIf="!hasSlot(col.field) && col.cellRenderer" [innerHTML]="sanitizeHtml(col.cellRenderer(item))"></div>
+                                <ng-container *ngIf="!hasSlot(col.field) && !col.cellRenderer"> {{ cellValue(item, col.field) }} </ng-container>
+                            </td>
+                        </ng-container>
+                    </tr>
+                </ng-container>
+                <tr *ngIf="!filterRowCount">
+                    <td [attr.colspan]="columns.length + 1">{{ noDataContent }}</td>
+                </tr>
+            </tbody>
+
+            <tfoot *ngIf="cloneHeaderInFooter" [ngClass]="{ 'bh-sticky bh-bottom-0': stickyHeader }">
+                <column-header
+                    #header2
+                    [all]="getProps"
+                    [isFooter]="true"
+                    [checkAll]="selectedAll"
+                    (selectAll)="selectAll($event)"
+                    (sortChange)="sortChangeMethod($event)"
+                    (filterChange)="filterChangeMethod()"
+                ></column-header>
+            </tfoot>
+        </table>
+
+        <div *ngIf="currentLoader" class="bh-absolute bh-inset-0 bh-bg-gray-200/50 bh-grid bh-place-content-center">
+            <icon-loader></icon-loader>
+        </div>
+    </div>
+
+    <div *ngIf="pagination" class="bh-pagination bh-py-5">
+        <div class="bh-flex bh-items-center bh-flex-wrap bh-flex-col sm:bh-flex-row bh-gap-4">
+            <div class="bh-pagination-info bh-flex bh-items-center">
+                <span class="bh-mr-2"> {{ pager.stringFormat }} </span>
+                <select *ngIf="showPageSize" [(ngModel)]="currentPageSize" class="bh-pagesize" (ngModelChange)="changePageSize()">
+                    <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}</option>
+                </select>
+            </div>
+
+            <div class="bh-pagination-number sm:bh-ml-auto bh-inline-flex bh-items-center bh-space-x-1">
+                <button *ngIf="showFirstPage" type="button" class="bh-page-item first-page" [class.disabled]="currentPage <= 1" (click)="movePage(1)">
+                    <span *ngIf="firstArrow" [innerHTML]="sanitizeHtml(firstArrow)"></span>
+                    <svg *ngIf="!firstArrow" aria-hidden="true" width="14" height="14" viewBox="0 0 16 16">
+                        <g fill="currentColor" fill-rule="evenodd">
+                            <path d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                            <path d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                        </g>
+                    </svg>
+                </button>
+                <button type="button" class="bh-page-item previous-page" [class.disabled]="currentPage <= 1" (click)="movePage(currentPage - 1)">
+                    <span *ngIf="previousArrow" [innerHTML]="sanitizeHtml(previousArrow)"></span>
+                    <svg *ngIf="!previousArrow" aria-hidden="true" width="14" height="14" viewBox="0 0 16 16">
+                        <path
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"
+                        />
+                    </svg>
+                </button>
+
+                <ng-container *ngIf="showNumbers">
+                    <button
+                        *ngFor="let page of pager.pages"
+                        type="button"
+                        class="bh-page-item"
+                        [class.disabled]="currentPage === page"
+                        [class.bh-active]="page === currentPage"
+                        (click)="movePage(page)"
+                    >
+                        {{ page }}
+                    </button>
+                </ng-container>
+
+                <button type="button" class="bh-page-item next-page" [class.disabled]="currentPage >= maxPage()" (click)="movePage(currentPage + 1)">
+                    <span *ngIf="nextArrow" [innerHTML]="sanitizeHtml(nextArrow)"> </span>
+                    <svg *ngIf="!nextArrow" aria-hidden="true" width="14" height="14" viewBox="0 0 16 16">
+                        <path
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8L4.646 2.354a.5.5 0 0 1 0-.708z"
+                        />
+                    </svg>
+                </button>
+
+                <button *ngIf="showLastPage" type="button" class="bh-page-item last-page" [class.disabled]="currentPage >= maxPage()" (click)="movePage(maxPage())">
+                    <span *ngIf="lastArrow" [innerHTML]="sanitizeHtml(lastArrow)"> </span>
+                    <svg *ngIf="!lastArrow" aria-hidden="true" width="14" height="14" viewBox="0 0 16 16">
+                        <g fill="currentColor" fill-rule="evenodd">
+                            <path d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8L3.646 2.354a.5.5 0 0 1 0-.708z" />
+                            <path d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8L7.646 2.354a.5.5 0 0 1 0-.708z" />
+                        </g>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
