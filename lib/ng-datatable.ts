@@ -263,7 +263,6 @@ export class NgDataTableComponent {
     }
 
     filterRows() {
-        this.currentLoader = true;
         let rows = this.rows || [];
 
         this.columns?.forEach((d) => {
@@ -431,14 +430,13 @@ export class NgDataTableComponent {
         const result = rows.slice(this.offset() - 1, <number>this.limit());
 
         this.filterItems = result || [];
-        this.currentLoader = false;
 
         this.setPager();
     }
 
     // page change
     movePage(page: number = 1) {
-        if (page < 1 || page > this.maxPage()) {
+        if (this.currentLoader || page < 1 || page > this.maxPage()) {
             return;
         }
         this.currentPage = page;

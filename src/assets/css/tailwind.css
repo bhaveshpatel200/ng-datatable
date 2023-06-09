@@ -18,7 +18,7 @@
     }
     .bh-datatable .bh-table-responsive table thead tr,
     .bh-datatable .bh-table-responsive table tfoot tr {
-        @apply bh-bg-[#f6f7fa];
+        @apply bh-bg-blue-light;
     }
     .bh-datatable .bh-table-responsive table thead tr th,
     .bh-datatable .bh-table-responsive table tfoot tr th,
@@ -30,7 +30,7 @@
         @apply bh-font-bold bh-align-top;
     }
     .bh-datatable .bh-table-responsive table tbody tr {
-        @apply bh-border-b bh-border-solid bh-border-[#f6f7fa];
+        @apply bh-border-b bh-border-solid bh-border-blue-light;
     }
     .bh-datatable .bh-table-responsive table.bh-table-striped tbody tr:nth-child(odd) {
         @apply bh-bg-[#e0e6ed]/[0.15];
@@ -44,11 +44,11 @@
     }
     .bh-datatable .bh-table-responsive table.bh-table-bordered thead tr th,
     .bh-datatable .bh-table-responsive table.bh-table-bordered tbody tr td {
-        @apply bh-border bh-border-solid bh-border-[#f6f7fa];
+        @apply bh-border bh-border-solid bh-border-blue-light;
     }
 
     .bh-datatable .bh-pagination .bh-page-item {
-        @apply bh-bg-white bh-cursor-pointer bh-grid bh-place-content-center bh-w-8 bh-h-8 bh-px-2.5 bh-py-1.5 bh-text-gray-600 hover:bh-text-white hover:bh-bg-primary bh-border bh-border-solid bh-border-black/30  hover:bh-border-primary bh-rounded-full bh-select-none bh-outline-0 bh-transition bh-duration-200;
+        @apply bh-bg-white bh-cursor-pointer bh-grid bh-place-content-center bh-w-8 bh-h-8 bh-px-2.5 bh-py-1.5 bh-text-gray-600 hover:bh-text-white hover:bh-bg-primary bh-border bh-border-solid bh-border-black/30  hover:bh-border-primary bh-rounded-full bh-select-none bh-outline-0;
         -webkit-appearance: button;
         background-image: none;
     }
@@ -110,5 +110,16 @@
     .bh-datatable .bh-table-responsive input[type='checkbox']:checked + div svg.check,
     .bh-datatable .bh-table-responsive input[type='checkbox']:indeterminate + div svg.intermediate {
         @apply bh-flex bh-text-white;
+    }
+}
+
+.bh-skeleton-box {
+    @apply bh-relative bh-overflow-hidden bh-bg-gray-100 bh-w-full
+     after:bh-content-[''] after:bh-absolute after:bh-inset-0 after:-bh-translate-x-full after:bh-animate-[bhshimmer_2s_infinite]
+     after:bh-bg-[linear-gradient(90deg,rgba(0,0,0,0)_0,rgba(0,0,0,0.025)_20%,rgba(0,0,0,0.05)_50%,rgba(0,0,0,0))];
+}
+@keyframes bhshimmer {
+    100% {
+        transform: translateX(100%);
     }
 }

@@ -10,7 +10,7 @@ import { colDef } from './modals';
                     *ngIf="all.hasCheckbox"
                     [class]="'bh-w-px'"
                     [ngClass]="{
-                        'bh-sticky bh-bg-[#f6f7fa] bh-z-[1]': all.stickyHeader || all.stickyFirstColumn,
+                        'bh-sticky bh-bg-blue-light bh-z-[1]': all.stickyHeader || all.stickyFirstColumn,
                         'bh-top-0': all.stickyHeader,
                         'bh-left-0': all.stickyFirstColumn
                     }"
@@ -30,7 +30,7 @@ import { colDef } from './modals';
                         [class]="'bh-select-none bh-z-[1]'"
                         [ngClass]="[
                             all.sortable && col.sort ? 'bh-cursor-pointer' : '',
-                            j === 0 && all.stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-[#f6f7fa]' : '',
+                            j === 0 && all.stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-blue-light' : '',
                             all.hasCheckbox && j === 0 && all.stickyFirstColumn ? 'bh-left-[52px]' : ''
                         ]"
                         [style]="{ width: col.width, 'min-width': col.minWidth, 'max-width': col.maxWidth }"

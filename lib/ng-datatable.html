@@ -20,7 +20,7 @@
                         (click)="onRowClick(item, i)"
                         (dblclick)="onRowDoubleClick(item)"
                     >
-                        <td *ngIf="hasCheckbox" [ngClass]="{'bh-sticky bh-left-0 bh-bg-[#f6f7fa]': stickyFirstColumn}">
+                        <td *ngIf="hasCheckbox" [ngClass]="{'bh-sticky bh-left-0 bh-bg-blue-light': stickyFirstColumn}">
                             <div class="bh-checkbox" (click)="$event.stopPropagation();">
                                 <input type="checkbox" value="{{item[uniqueKey] ? item[uniqueKey] : i}}" [(ngModel)]="item.selected" (change)="checkboxChange();" />
                                 <div>
@@ -33,7 +33,7 @@
                                 *ngIf="!col.hide"
                                 [ngClass]="[
                                     (isFunction(cellClass) ? cellClass(item) : cellClass),
-                                    j === 0 && stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-[#f6f7fa]' : '',
+                                    j === 0 && stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-blue-light' : '',
                                     hasCheckbox && j === 0 && stickyFirstColumn ? 'bh-left-[52px]' : '',
                                     col.cellClass ? col.cellClass : ''
                                     ]"
@@ -47,9 +47,17 @@
                         </ng-container>
                     </tr>
                 </ng-container>
-                <tr *ngIf="!filterRowCount">
+                <tr *ngIf="!filterRowCount && !currentLoader">
                     <td [attr.colspan]="columns.length + 1">{{ noDataContent }}</td>
                 </tr>
+
+                <ng-container *ngIf="!filterRowCount && currentLoader">
+                    <tr *ngFor="let k of [1,2,3,4,5,6]" class="!bh-bg-white bh-h-11 !bh-border-transparent">
+                        <td [attr.colspan]="columns.length + 1" class="!bh-p-0">
+                            <div class="bh-skeleton-box bh-h-8"></div>
+                        </td>
+                    </tr>
+                </ng-container>
             </tbody>
 
             <tfoot *ngIf="cloneHeaderInFooter" [ngClass]="{ 'bh-sticky bh-bottom-0': stickyHeader }">
@@ -65,12 +73,12 @@
             </tfoot>
         </table>
 
-        <div *ngIf="currentLoader" class="bh-absolute bh-inset-0 bh-bg-gray-200/50 bh-grid bh-place-content-center">
+        <div *ngIf="filterRowCount && currentLoader" class="bh-absolute bh-inset-0 bh-bg-blue-light/50 bh-grid bh-place-content-center">
             <icon-loader></icon-loader>
         </div>
     </div>
 
-    <div *ngIf="pagination" class="bh-pagination bh-py-5">
+    <div *ngIf="pagination && filterRowCount" class="bh-pagination bh-py-5">
         <div class="bh-flex bh-items-center bh-flex-wrap bh-flex-col sm:bh-flex-row bh-gap-4">
             <div class="bh-pagination-info bh-flex bh-items-center">
                 <span class="bh-mr-2"> {{ pager.stringFormat }} </span>
