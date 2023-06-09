@@ -1,6 +1,6 @@
 {
     "name": "@bhplugin/ng-datatable",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "ng-datatable - fully customizable & easy to use datatable library",
     "private": false,
     "author": {
