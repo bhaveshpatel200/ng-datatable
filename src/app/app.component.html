@@ -2,26 +2,32 @@
     <div class="bh-flex bh-items-center bh-gap-4 bh-mb-2">
         <input
             type="text"
-            [(ngModel)]="search"
+            [(ngModel)]="params.search"
             placeholder="Search..."
             class="bh-border bh-border-solid bh-bg-white bh-p-2 bh-outline-0 bh-border-gray-200 focus:bh-border-gray-200 bh-rounded"
         />
+        <button type="button" class="p-2 bh-bg-gray-200 bh-border bh-border-gray-300 hover:bh-opacity-80" (click)="datatable.reset()">Reset</button>
     </div>
 
     <ng-datatable
         #datatable
         [loading]="loading"
-        [rows]="rows"
         [columns]="cols"
-        [hasCheckbox]="hasCheckbox"
+        [rows]="rows"
+        [totalRows]="total_rows"
+        [isServerMode]="true"
+        [pageSize]="params.pagesize"
+        [pageSizeOptions]="[3, 5, 10]"
+        [hasCheckbox]="true"
         [sortable]="true"
+        [sortColumn]="params.sort_column"
+        [sortDirection]="params.sort_direction"
         [columnFilter]="true"
-        [search]="search"
-        [rowClass]="rowClass"
-        [cellClass]="cellClass"
+        [search]="params.search"
+        (changeServer)="changeServer($event)"
     >
-        <ng-template slot="name" let-value="data">
-            <strong>{{ value.name }}</strong>
+        <ng-template slot="id" let-value="data">
+            <strong>#{{ value.id }}</strong>
         </ng-template>
     </ng-datatable>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { colDef } from 'lib/modals';
 
 @Component({
@@ -14,79 +14,79 @@ import { colDef } from 'lib/modals';
     encapsulation: ViewEncapsulation.None,
 })
 export class AppComponent {
-    cols: Array<colDef> = [];
+    cols: Array<colDef> = [
+        { field: 'id', title: 'ID', isUnique: true },
+        { field: 'firstName', title: 'First Name' },
+        { field: 'lastName', title: 'Last Name' },
+        { field: 'email', title: 'Email' },
+        { field: 'age', title: 'Age', type: 'number' },
+        { field: 'dob', title: 'Birthdate', type: 'date' },
+        { field: 'address.city', title: 'City' },
+        { field: 'isActive', title: 'Active', type: 'bool' },
+    ];
     rows: Array<any> = [];
+    total_rows: number = 0;
     loading = false;
-    page = 1;
-    pageSize = 10;
-    search = '';
-    sortColumn = '';
-    sortDirection = '';
-    hasCheckbox = true;
-    isOpen = false;
+    params = {
+        current_page: 1,
+        pagesize: 5,
+        sort_column: 'id',
+        sort_direction: 'desc',
+        column_filters: [],
+        search: '',
+    };
     @ViewChild('datatable') datatable: any;
+    controller: any;
+    timer: any;
     constructor() {
-        this.initData();
+        this.getUsers();
     }
-    initData() {
-        this.cols = [
-            {
-                field: 'id',
-                title: 'ID',
-                width: '90px',
-                isUnique: true,
-                cellRenderer: (params: any) => {
-                    return '<strong>#' + params.id + '</strong>';
-                },
-            },
-            { field: 'name', title: 'Name' },
-            { field: 'username', title: 'Username' },
-            { field: 'email', title: 'Email' },
-            { field: 'phone', title: 'Phone' },
-            { field: 'date', title: 'Date', type: 'date' },
-            { field: 'active', title: 'Active', type: 'bool' },
-            { field: 'age', title: 'Age', type: 'number' },
-            { field: 'address.city', title: 'Address' },
-            { field: 'company.name', title: 'Company' },
-        ];
 
-        const arr = [];
-        for (let i = 0; i < 5000; i++) {
-            const obj = {
-                id: 1 + i,
-                name: 'Leanne Graham' + (i + 1),
-                username: 'Bret' + (i + 1),
-                email: 'Sincere@april.biz',
-                address: {
-                    street: 'Kulas Light',
-                    suite: 'Apt. 556',
-                    city: 'Gwenborough',
-                    zipcode: '92998-3874',
-                    geo: {
-                        lat: '-37.3159',
-                        lng: '81.1496',
-                    },
-                },
-                phone: '1-770-736-8031 x56442',
-                website: 'hildegard.org',
-                company: {
-                    name: 'Romaguera-Crona',
-                    catchPhrase: 'Multi-layered client-server neural-net',
-                    bs: 'harness real-time e-markets',
-                },
-                date: 'Tue Sep 27 2022 22:19:57',
-                age: i % 2 === 0 ? i + 2 : i + 4,
-                active: i % 2 === 0 ? true : false,
-            };
-            arr.push(obj);
+    filterUsers() {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+            this.getUsers();
+        }, 300);
+    }
+
+    async getUsers() {
+        // cancel request if previous request still pending before next request fire
+        if (this.controller) {
+            this.controller.abort();
         }
+        this.controller = new AbortController();
+        const signal = this.controller.signal;
 
-        this.rows = arr;
+        try {
+            this.loading = true;
+
+            const response = await fetch('https://vue3-datatable-document.vercel.app/api/user', {
+                method: 'POST',
+                body: JSON.stringify(this.params),
+                signal: signal, // Assign the signal to the fetch request
+            });
+
+            const data = await response.json();
+
+            this.rows = data?.data;
+            this.total_rows = data?.meta?.total;
+        } catch {}
+
+        this.loading = false;
     }
-    rowClass(data: any) {
-        return data.username === 'Bret - 0' ? 'Bret' : '';
-    }
-    cellClass(data: any) {
-        return data.username === 'Bret - 0' ? 'Bret1' : '';
+
+    changeServer(data: any) {
+        this.params.current_page = data.current_page;
+        this.params.pagesize = data.pagesize;
+        this.params.sort_column = data.sort_column;
+        this.params.sort_direction = data.sort_direction;
+        this.params.column_filters = data.column_filters;
+        this.params.search = data.search;
+
+        if (data.change_type === 'filter' || data.change_type === 'search') {
+            this.filterUsers();
+        } else {
+            this.getUsers();
+        }
     }
 }

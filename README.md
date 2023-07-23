@@ -1,6 +1,6 @@
 # @bhplugin/ng-datatable
 
-
+<br/>
 
 ## Example
 
@@ -44,13 +44,13 @@ export class AppModule {}
 ```
 
 #### app.component.html
+
 ```html
-
 <ng-datatable [rows]="rows" [columns]="cols"> </ng-datatable>
-
 ```
 
 #### app.component.ts
+
 ```html
 
 import { Component } from '@angular/core';
@@ -114,97 +114,104 @@ export class AppComponent {
         ];
     }
 }
-
 ```
 
 ## Props
 
-| Props                | Type                    | Default                             | Description                                                                                                                                                                   |
-| -------------------- | :---------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| columns (required)   | array<colDef>           | []                                  | table columns                                                                                                                                                                 |
-| rows (required)      | array<any>              | []                                  | table rows                                                                                                                                                                    |
-| skin                 | string                  | "bh-table-striped bh-table-hover"   | custom class for skin ('bh-table-striped' - for stripe row, 'bh-table-hover' - for hover row, 'bh-table-bordered' - for bordered row, 'bh-table-compact' - for compact table) |
-| loading              | boolean                 | false                               | enable loader                                                                                                                                                                 |
-| hasCheckbox          | boolean                 | false                               | enable checkbox                                                                                                                                                               |
-| search               | string                  | ""                                  | enable global search                                                                                                                                                          |
-| page                 | number                  | 1                                   | current page                                                                                                                                                                  |
-| pageSize             | number                  | 10                                  | number of rows per page                                                                                                                                                       |
-| pageSizeOptions      | array<number>           | [10, 20, 30, 50, 100]               | pagesize options                                                                                                                                                              |
-| showPageSize         | boolean                 | true                                | enable pagesize options                                                                                                                                                       |
-| rowClass             | array<string>, function | ""                                  | custom row class                                                                                                                                                              |
-| cellClass            | array<string>, function | ""                                  | custom cell class                                                                                                                                                             |
-| sortable             | boolean                 | true                                | enable sorting                                                                                                                                                                |
-| sortColumn           | string                  | "id"                                | name of sort column                                                                                                                                                           |
-| sortDirection        | string                  | "asc"                               | sort direction (asc or desc)                                                                                                                                                  |
-| columnFilter         | boolean                 | false                               | enable individual column filter                                                                                                                                               |
-| pagination           | boolean                 | true                                | enable pagination                                                                                                                                                             |
-| showNumbers          | boolean                 | true                                | enable numbers pagination                                                                                                                                                     |
-| showNumbersCount     | number                  | 5                                   | show numbers of count in pagination                                                                                                                                           |
-| showFirstPage        | boolean                 | true                                | enable first page in pagination                                                                                                                                               |
-| showLastPage         | boolean                 | true                                | enable last page in pagination                                                                                                                                                |
-| firstArrow           | string                  | default arrow                       | custom first page arrow                                                                                                                                                       |
-| lastArrow            | string                  | default arrow                       | custom last page arrow                                                                                                                                                        |
-| previousArrow        | string                  | default arrow                       | custom previous page arrow                                                                                                                                                    |
-| nextArrow            | string                  | default arrow                       | custom next page arrow                                                                                                                                                        |
-| paginationInfo       | string                  | "Showing {0} to {1} of {2} entries" | custom pagination info                                                                                                                                                        |
-| noDataContent        | string                  | No data available                   | custom no data message                                                                                                                                                        |
-| stickyHeader         | boolean                 | false                               | enable fixed header                                                                                                                                                           |
-| height               | string                  | 450px                               | only will be used when stickyHeader enabled                                                                                                                                   |
-| stickyFirstColumn    | boolean                 | false                               | enable fixed first column                                                                                                                                                     |
-| cloneHeaderInFooter  | boolean                 | false                               | enable clone header in footer                                                                                                                                                 |
-| selectRowOnClick     | boolean                 | false                               | enable to select row(checkbox) on row click                                                                                                                                   |
+| Props                   | Type                    | Default                             | Description                                                                                                                                                                                   |
+| ----------------------- | :---------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **columns (required)**  | array<colDef>           | []                                  | table columns                                                                                                                                                                                 |
+| **rows (required)**     | array<any>              | []                                  | table rows                                                                                                                                                                                    |
+| **isServerMode**        | boolean                 | false                               | set **_true_** if you need server side pagination.                                                                                                                                            |
+| **totalRows**           | number                  | 0                                   | total number of rows. **_totalRows_** required when **_isServerMode_** is true                                                                                                                |
+| **skin**                | string                  | "bh-table-striped bh-table-hover"   | custom class for skin ('**bh-table-striped**' - for stripe row, '**bh-table-hover**' - for hover row, '**bh-table-bordered**' - for bordered row, '**bh-table-compact**' - for compact table) |
+| **loading**             | boolean                 | false                               | enable loader                                                                                                                                                                                 |
+| **hasCheckbox**         | boolean                 | false                               | enable checkbox                                                                                                                                                                               |
+| **search**              | string                  | ""                                  | enable global search                                                                                                                                                                          |
+| **page**                | number                  | 1                                   | current page                                                                                                                                                                                  |
+| **pageSize**            | number                  | 10                                  | number of rows per page                                                                                                                                                                       |
+| **pageSizeOptions**     | array<number>           | [10, 20, 30, 50, 100]               | pagesize options                                                                                                                                                                              |
+| **showPageSize**        | boolean                 | true                                | enable pagesize options                                                                                                                                                                       |
+| **rowClass**            | array<string>, function | ""                                  | custom row class                                                                                                                                                                              |
+| **cellClass**           | array<string>, function | ""                                  | custom cell class                                                                                                                                                                             |
+| **sortable**            | boolean                 | true                                | enable sorting                                                                                                                                                                                |
+| **sortColumn**          | string                  | "id"                                | name of sort column                                                                                                                                                                           |
+| **sortDirection**       | string                  | "asc"                               | sort direction (asc or desc)                                                                                                                                                                  |
+| **columnFilter**        | boolean                 | false                               | enable individual column filter                                                                                                                                                               |
+| **pagination**          | boolean                 | true                                | enable pagination                                                                                                                                                                             |
+| **showNumbers**         | boolean                 | true                                | enable numbers pagination                                                                                                                                                                     |
+| **showNumbersCount**    | number                  | 5                                   | show numbers of count in pagination                                                                                                                                                           |
+| **showFirstPage**       | boolean                 | true                                | enable first page in pagination                                                                                                                                                               |
+| **showLastPage**        | boolean                 | true                                | enable last page in pagination                                                                                                                                                                |
+| **firstArrow**          | string                  | default arrow                       | custom first page arrow                                                                                                                                                                       |
+| **lastArrow**           | string                  | default arrow                       | custom last page arrow                                                                                                                                                                        |
+| **previousArrow**       | string                  | default arrow                       | custom previous page arrow                                                                                                                                                                    |
+| **nextArrow**           | string                  | default arrow                       | custom next page arrow                                                                                                                                                                        |
+| **paginationInfo**      | string                  | "Showing {0} to {1} of {2} entries" | custom pagination info                                                                                                                                                                        |
+| **noDataContent**       | string                  | No data available                   | custom no data message                                                                                                                                                                        |
+| **stickyHeader**        | boolean                 | false                               | enable fixed header                                                                                                                                                                           |
+| **height**              | string                  | 450px                               | only will be used when stickyHeader enabled                                                                                                                                                   |
+| **stickyFirstColumn**   | boolean                 | false                               | enable fixed first column                                                                                                                                                                     |
+| **cloneHeaderInFooter** | boolean                 | false                               | enable clone header in footer                                                                                                                                                                 |
+| **selectRowOnClick**    | boolean                 | false                               | enable to select row(checkbox) on row click                                                                                                                                                   |
 
 ## Columns options
 
-| Props        | Type             | Default   | Description                                           |
-| ------------ | :--------------- | --------- | ----------------------------------------------------- |
-| isUnique     | boolean          | false     | db column is primary key or not                       |
-| field        | string           | ""        | db column name                                        |
-| title        | string           | ""        | display column name                                   |
-| value        | string           | ""        | filter value if filter enabled                        |
-| condition    | string           | "contain" | default condition for column filter if filter enabled |
-| type         | string           | ""        | column type (string, date, number, bool)              |
-| width        | string           | ""        | custom width of column                                |
-| minWidth     | string           | ""        | custom minimum width of column                        |
-| maxWidth     | string           | ""        | custom maximum width of column                        |
-| hide         | boolean          | false     | show/hide column                                      |
-| filter       | boolean          | true      | enable column filter                                  |
-| search       | boolean          | true      | enabled global search                                 |
-| sort         | boolean          | true      | enable sorting                                        |
-| cellRenderer | function, string |       | custom cell rendering                                 |
-| headerClass  | string           | ""        | custom header cell class                              |
-| cellClass    | string           | ""        | custom cell class                                     |
+| Props            | Type             | Default   | Description                                           |
+| ---------------- | :--------------- | --------- | ----------------------------------------------------- |
+| **isUnique**     | boolean          | false     | db column is primary key or not                       |
+| **field**        | string           | ""        | db column name                                        |
+| **title**        | string           | ""        | display column name                                   |
+| **value**        | string           | ""        | filter value if filter enabled                        |
+| **condition**    | string           | "contain" | default condition for column filter if filter enabled |
+| **type**         | string           | ""        | column type (string, date, number, bool)              |
+| **width**        | string           | ""        | custom width of column                                |
+| **minWidth**     | string           | ""        | custom minimum width of column                        |
+| **maxWidth**     | string           | ""        | custom maximum width of column                        |
+| **hide**         | boolean          | false     | show/hide column                                      |
+| **filter**       | boolean          | true      | enable column filter                                  |
+| **search**       | boolean          | true      | enabled global search                                 |
+| **sort**         | boolean          | true      | enable sorting                                        |
+| **cellRenderer** | function, string |           | custom cell rendering                                 |
+| **headerClass**  | string           | ""        | custom header cell class                              |
+| **cellClass**    | string           | ""        | custom cell class                                     |
 
 ## Events
 
-| Name           | Description                                   |
-| -------------- | --------------------------------------------- |
-| sortChange     | will trigger when sorting changed             |
-| searchChange   | will trigger when search changed              |
-| pageChange     | will trigger when page changed                |
-| pageSizeChange | will trigger when pagesize changed            |
-| rowSelect      | will trigger when row selected using checkbox |
-| filterChange   | will trigger when column filter changed       |
-| rowClick       | will trigger when row clicked                 |
-| rowDBClick     | will trigger when row double clicked          |
+| Name               | Description                                   |
+| ------------------ | --------------------------------------------- |
+| **sortChange**     | will trigger when sorting changed             |
+| **searchChange**   | will trigger when search changed              |
+| **pageChange**     | will trigger when page changed                |
+| **pageSizeChange** | will trigger when pagesize changed            |
+| **rowSelect**      | will trigger when row selected using checkbox |
+| **filterChange**   | will trigger when column filter changed       |
+| **rowClick**       | will trigger when row clicked                 |
+| **rowDBClick**     | will trigger when row double clicked          |
 
 ## Methods
 
-| Name                 | Description                                                                  |
-| -------------------- | ---------------------------------------------------------------------------- |
-| reset                | will reset all options like selected rows, filter, search, currennt page etc |
-| getSelectedRows      | will returns all selected rows                                               |
-| getColumnFilters     | will return all column filters                                               |
-| clearSelectedRows    | will unselect all selected rows                                              |
-| selectRow(index)     | will select row with the given index (non-existent row will be ignored)      |
-| unselectRow(index)   | will unselect row with the given index (non-existent row will be ignored)    |
-| isRowSelected(index) | will return true if the row with given index is selected                     |
+| Name                     | Description                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| **reset**                | will reset all options like selected rows, filter, search, currennt page etc |
+| **getSelectedRows**      | will returns all selected rows                                               |
+| **getColumnFilters**     | will return all column filters                                               |
+| **clearSelectedRows**    | will unselect all selected rows                                              |
+| **selectRow(index)**     | will select row with the given index (non-existent row will be ignored)      |
+| **unselectRow(index)**   | will unselect row with the given index (non-existent row will be ignored)    |
+| **isRowSelected(index)** | will return true if the row with given index is selected                     |
 
 <br>
 
 ## License
 
-@bhplugin/ng-datatable is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+**_@bhplugin/ng-datatable_** is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+
+<br>
+
+## **Our other plugins**
+
+### Vue3 Datatable - [**@bhplugin/vue3-datatable**](https://www.npmjs.com/package/@bhplugin/vue3-datatable)
 
 <br>
 
@@ -213,10 +220,3 @@ export class AppComponent {
 <a target="_blank" href="https://www.buymeacoffee.com/bhplugin">
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60">
 </a>
-
-<br>
-
-## Our Other Packages
-**<a target="_blank" href="https://www.npmjs.com/package/@bhplugin/vue3-datatable">
-  Vue3 Datatable
-</a>**

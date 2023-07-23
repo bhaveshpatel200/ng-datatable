@@ -25,6 +25,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class NgDataTableComponent {
     // props
     @Input() loading: boolean = false;
+    @Input() isServerMode: boolean = false;
     @Input() skin: string = 'bh-table-striped bh-table-hover';
     @Input() totalRows: number = 0;
     @Input() rows: Array<any> = [];
@@ -59,6 +60,7 @@ export class NgDataTableComponent {
     @Input() selectRowOnClick: boolean = false;
 
     // events
+    @Output() changeServer = new EventEmitter<any>();
     @Output() sortChange = new EventEmitter<any>();
     @Output() searchChange = new EventEmitter<any>();
     @Output() pageChange = new EventEmitter<any>();
@@ -72,8 +74,11 @@ export class NgDataTableComponent {
     filterItems: Array<any> = [];
     currentPage = this.page;
     currentPageSize = this.pagination ? this.pageSize : this.rows.length;
+    oldPageSize = this.pageSize;
     currentSortColumn = this.sortColumn;
+    oldSortColumn = this.sortColumn;
     currentSortDirection = this.sortDirection;
+    oldSortDirection = this.sortDirection;
     filterRowCount = this.totalRows;
 
     selectedAll: any = null;
@@ -95,20 +100,26 @@ export class NgDataTableComponent {
 
         // watch rows and columns
         if ((changes['rows'] && !changes['rows'].firstChange) || (changes['columns'] && !changes['columns'].firstChange)) {
-            this.currentPage = 1;
-            this.oldColumns = this.noReact(this.columns);
+            if (!this.isServerMode) {
+                this.currentPage = 1;
+                this.oldColumns = this.noReact(this.columns);
+            }
             this.changeRows();
         }
 
         // watch page
-        if (changes['page'] && !changes['page'].firstChange) {
-            this.movePage(this.page);
+        if (!this.isServerMode) {
+            if (changes['page'] && !changes['page'].firstChange) {
+                this.movePage(this.page);
+            }
         }
 
         // watch pagesize
         if (changes['pageSize'] && !changes['pageSize'].firstChange) {
             this.currentPageSize = this.pagination ? this.pageSize : this.rows.length;
-            this.changePageSize();
+            if (!this.isServerMode) {
+                this.changePageSize();
+            }
         }
 
         // watch search
@@ -118,8 +129,10 @@ export class NgDataTableComponent {
         }
 
         // watch sort column and direction
-        if ((changes['sortColumn'] && !changes['sortColumn'].firstChange) || (changes['sortDirection'] && !changes['sortDirection'].firstChange)) {
-            this.sortChangeMethod(this.sortColumn, this.sortDirection);
+        if (!this.isServerMode) {
+            if ((changes['sortColumn'] && !changes['sortColumn'].firstChange) || (changes['sortDirection'] && !changes['sortDirection'].firstChange)) {
+                this.sortChangeMethod(this.sortColumn, this.sortDirection);
+            }
         }
     }
 
@@ -137,6 +150,10 @@ export class NgDataTableComponent {
         } else {
             this.currentPageSize = this.rows.length;
         }
+
+        this.oldPageSize = this.pageSize;
+        this.oldSortColumn = this.sortColumn;
+        this.oldSortDirection = this.sortDirection;
 
         // set default columns values
         for (const item of this.columns || []) {
@@ -159,6 +176,7 @@ export class NgDataTableComponent {
     get getProps() {
         return {
             loading: this.currentLoader,
+            isServerMode: this.isServerMode,
             skin: this.skin,
             totalRows: this.filterRowCount,
             rows: this.rows,
@@ -248,7 +266,7 @@ export class NgDataTableComponent {
         const pages = Array.from(Array(endPage + 1 - startPage).keys()).map((i) => startPage + i);
 
         return <Pager>{
-            totalRows: this.filterItems.length,
+            totalRows: this.isServerMode ? this.totalRows : this.filterItems.length,
             currentPage: this.currentPage,
             pageSize: this.pageSize,
             maxPage: totalPages,
@@ -263,171 +281,170 @@ export class NgDataTableComponent {
     }
 
     filterRows() {
+        let result = [];
         let rows = this.rows || [];
 
-        this.columns?.forEach((d) => {
-            if (d.filter && ((d.value !== undefined && d.value !== null && d.value !== '') || d.condition === 'is_null' || d.condition === 'is_not_null')) {
-                // string filters
-                if (d.type === 'string') {
-                    if (d.condition === 'contain') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val?.toString().toLowerCase().includes(d.value.toLowerCase());
+        if (this.isServerMode) {
+            this.filterRowCount = this.totalRows || 0;
+            result = rows;
+        } else {
+            this.columns?.forEach((d) => {
+                if (d.filter && ((d.value !== undefined && d.value !== null && d.value !== '') || d.condition === 'is_null' || d.condition === 'is_not_null')) {
+                    // string filters
+                    if (d.type === 'string') {
+                        if (d.value && !d.condition) {
+                            d.condition = 'contain';
+                        }
+
+                        if (d.condition === 'contain') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field)?.toString().toLowerCase().includes(d.value.toLowerCase());
+                            });
+                        } else if (d.condition === 'not_contain') {
+                            rows = rows.filter((item) => {
+                                return !this.cellValue(item, d.field)?.toString().toLowerCase().includes(d.value.toLowerCase());
+                            });
+                        } else if (d.condition === 'equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field)?.toString().toLowerCase() === d.value.toLowerCase();
+                            });
+                        } else if (d.condition === 'not_equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field)?.toString().toLowerCase() !== d.value.toLowerCase();
+                            });
+                        } else if (d.condition === 'start_with') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field)?.toString().toLowerCase().indexOf(d.value.toLowerCase()) === 0;
+                            });
+                        } else if (d.condition === 'end_with') {
+                            rows = rows.filter((item) => {
+                                return (
+                                    this.cellValue(item, d.field)
+                                        ?.toString()
+                                        .toLowerCase()
+                                        .substr(d.value.length * -1) === d.value.toLowerCase()
+                                );
+                            });
+                        }
+                    }
+
+                    // number filters
+                    else if (d.type === 'number') {
+                        if (d.value && !d.condition) {
+                            d.condition = 'equal';
+                        }
+
+                        if (d.condition === 'equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) === parseFloat(d.value);
+                            });
+                        } else if (d.condition === 'not_equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) !== parseFloat(d.value);
+                            });
+                        } else if (d.condition === 'greater_than') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) > parseFloat(d.value);
+                            });
+                        } else if (d.condition === 'greater_than_equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) >= parseFloat(d.value);
+                            });
+                        } else if (d.condition === 'less_than') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) < parseFloat(d.value);
+                            });
+                        } else if (d.condition === 'less_than_equal') {
+                            rows = rows.filter((item) => {
+                                return this.cellValue(item, d.field) && parseFloat(this.cellValue(item, d.field)) <= parseFloat(d.value);
+                            });
+                        }
+                    }
+
+                    // date filters
+                    if (d.type === 'date') {
+                        if (d.value && !d.condition) {
+                            d.condition = 'equal';
+                        }
+
+                        if (d.condition === 'equal') {
+                            rows = rows.filter((item: any) => {
+                                return this.cellValue(item, d.field) && this.dateFormat(this.cellValue(item, d.field)) === d.value;
+                            });
+                        } else if (d.condition === 'not_equal') {
+                            rows = rows.filter((item: any) => {
+                                return this.cellValue(item, d.field) && this.dateFormat(this.cellValue(item, d.field)) !== d.value;
+                            });
+                        } else if (d.condition === 'greater_than') {
+                            rows = rows.filter((item: any) => {
+                                return this.cellValue(item, d.field) && this.dateFormat(this.cellValue(item, d.field)) > d.value;
+                            });
+                        } else if (d.condition === 'less_than') {
+                            rows = rows.filter((item: any) => {
+                                return this.cellValue(item, d.field) && this.dateFormat(this.cellValue(item, d.field)) < d.value;
+                            });
+                        }
+                    }
+
+                    // boolean filters
+                    else if (d.type === 'bool') {
+                        rows = rows.filter((item: any) => {
+                            return this.cellValue(item, d.field) === d.value;
                         });
-                    } else if (d.condition === 'not_contain') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return !val?.toString().toLowerCase().includes(d.value.toLowerCase());
+                    }
+
+                    if (d.condition === 'is_null') {
+                        rows = rows.filter((item: any) => {
+                            return this.cellValue(item, d.field) == null || this.cellValue(item, d.field) === '';
                         });
-                    } else if (d.condition === 'equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val?.toString().toLowerCase() === d.value.toLowerCase();
-                        });
-                    } else if (d.condition === 'not_equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val?.toString().toLowerCase() !== d.value.toLowerCase();
-                        });
-                    } else if (d.condition === 'start_with') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val?.toString().toLowerCase().indexOf(d.value.toLowerCase()) === 0;
-                        });
-                    } else if (d.condition === 'end_with') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return (
-                                val
-                                    ?.toString()
-                                    .toLowerCase()
-                                    .substr(d.value.length * -1) === d.value.toLowerCase()
-                            );
+                        d.value = '';
+                    } else if (d.condition === 'is_not_null') {
+                        d.value = '';
+                        rows = rows.filter((item: any) => {
+                            return this.cellValue(item, d.field);
                         });
                     }
                 }
+            });
 
-                // number filters
-                else if (d.type === 'number') {
-                    if (d.condition === 'equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) === parseFloat(d.value);
-                        });
-                    } else if (d.condition === 'not_equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) !== parseFloat(d.value);
-                        });
-                    } else if (d.condition === 'greater_than') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) > parseFloat(d.value);
-                        });
-                    } else if (d.condition === 'greater_than_equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) >= parseFloat(d.value);
-                        });
-                    } else if (d.condition === 'less_than') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) < parseFloat(d.value);
-                        });
-                    } else if (d.condition === 'less_than_equal') {
-                        rows = rows.filter((item) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && parseFloat(val) <= parseFloat(d.value);
-                        });
+            if (this.currentSearch && rows.length) {
+                let final: Array<any> = [];
+
+                const keys = (this.columns || [])
+                    .filter((d: any) => d.search && !d.hide)
+                    .map((d: any) => {
+                        return d.field;
+                    });
+
+                for (let j = 0; j < rows.length; j++) {
+                    for (let i = 0; i < keys.length; i++) {
+                        if (this.cellValue(rows[j], keys[i])?.toString().toLowerCase().includes(this.currentSearch.toLowerCase())) {
+                            final.push(rows[j]);
+                            break;
+                        }
                     }
                 }
 
-                // date filters
-                if (d.type === 'date') {
-                    if (d.condition === 'equal') {
-                        rows = rows.filter((item: any) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && this.dateFormat(val) === d.value;
-                        });
-                    } else if (d.condition === 'not_equal') {
-                        rows = rows.filter((item: any) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && this.dateFormat(val) !== d.value;
-                        });
-                    } else if (d.condition === 'greater_than') {
-                        rows = rows.filter((item: any) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && this.dateFormat(val) > d.value;
-                        });
-                    } else if (d.condition === 'less_than') {
-                        rows = rows.filter((item: any) => {
-                            const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                            return val && this.dateFormat(val) < d.value;
-                        });
-                    }
-                }
-
-                // boolean filters
-                else if (d.type === 'bool') {
-                    rows = rows.filter((item: any) => {
-                        const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                        return val === d.value;
-                    });
-                }
-
-                if (d.condition === 'is_null') {
-                    rows = rows.filter((item: any) => {
-                        const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                        return val == null || item[d.field] === '';
-                    });
-                    d.value = '';
-                } else if (d.condition === 'is_not_null') {
-                    d.value = '';
-                    rows = rows.filter((item: any) => {
-                        const val = d.field?.split('.').reduce((obj, key) => obj?.[key], item);
-                        return val;
-                    });
-                }
+                rows = final;
             }
-        });
 
-        if (this.currentSearch && rows.length) {
-            let final: Array<any> = [];
+            // sort rows
+            const collator = new Intl.Collator(undefined, {
+                numeric: true,
+                sensitivity: 'base',
+            });
+            const sortOrder = this.currentSortDirection === 'desc' ? -1 : 1;
 
-            const keys = (this.columns || [])
-                .filter((d: any) => d.search && !d.hide)
-                .map((d: any) => {
-                    return d.field;
-                });
+            rows.sort((a: any, b: any): number => {
+                const valA = this.currentSortColumn?.split('.').reduce((obj, key) => obj?.[key], a);
+                const valB = this.currentSortColumn?.split('.').reduce((obj, key) => obj?.[key], b);
 
-            for (let j = 0; j < rows.length; j++) {
-                for (let i = 0; i < keys.length; i++) {
-                    if (this.cellValue(rows[j], keys[i])?.toString().toLowerCase().includes(this.currentSearch.toLowerCase())) {
-                        final.push(rows[j]);
-                        break;
-                    }
-                }
-            }
+                return collator.compare(valA, valB) * sortOrder;
+            });
 
-            rows = final;
+            this.filterRowCount = rows.length || 0;
+            result = rows.slice(this.offset() - 1, <number>this.limit());
         }
-
-        // sort rows
-        const collator = new Intl.Collator(undefined, {
-            numeric: true,
-            sensitivity: 'base',
-        });
-        const sortOrder = this.currentSortDirection === 'desc' ? -1 : 1;
-
-        rows.sort((a: any, b: any): number => {
-            const valA = this.currentSortColumn?.split('.').reduce((obj, key) => obj?.[key], a);
-            const valB = this.currentSortColumn?.split('.').reduce((obj, key) => obj?.[key], b);
-
-            return collator.compare(valA, valB) * sortOrder;
-        });
-
-        this.filterRowCount = rows.length || 0;
-        const result = rows.slice(this.offset() - 1, <number>this.limit());
 
         this.filterItems = result || [];
 
@@ -440,10 +457,14 @@ export class NgDataTableComponent {
             return;
         }
         this.currentPage = page;
-
         this.clearSelectedRows();
-        this.filterRows();
-        this.pageChange.emit(this.currentPage);
+
+        if (this.isServerMode) {
+            this.changeForServer('page');
+        } else {
+            this.filterRows();
+            this.pageChange.emit(this.currentPage);
+        }
     }
 
     // row update
@@ -457,8 +478,13 @@ export class NgDataTableComponent {
         this.currentPage = 1;
 
         this.clearSelectedRows();
-        this.filterRows();
-        this.pageSizeChange.emit(this.currentPageSize);
+
+        if (this.isServerMode) {
+            this.changeForServer('pagesize', true);
+        } else {
+            this.filterRows();
+            this.pageSizeChange.emit(this.currentPageSize);
+        }
     }
 
     // sorting
@@ -475,8 +501,13 @@ export class NgDataTableComponent {
         this.currentSortDirection = direction;
 
         this.clearSelectedRows();
-        this.filterRows();
-        this.sortChange.emit({ offset, limit, field, direction });
+
+        if (this.isServerMode) {
+            this.changeForServer('sort');
+        } else {
+            this.filterRows();
+            this.sortChange.emit({ offset, limit, field, direction });
+        }
     }
 
     // checkboax
@@ -511,19 +542,27 @@ export class NgDataTableComponent {
     // columns filter
     filterChangeMethod() {
         this.currentPage = 1;
-
         this.clearSelectedRows();
-        this.filterRows();
-        this.filterChange.emit(this.columns);
+
+        if (this.isServerMode) {
+            this.changeForServer('filter', true);
+        } else {
+            this.filterRows();
+            this.filterChange.emit(this.columns);
+        }
     }
 
     // search
     changeSearch() {
         this.currentPage = 1;
-
         this.clearSelectedRows();
-        this.filterRows();
-        this.searchChange.emit(this.currentSearch);
+
+        if (this.isServerMode) {
+            this.changeForServer('search', true);
+        } else {
+            this.filterRows();
+            this.searchChange.emit(this.currentSearch);
+        }
     }
 
     cellValue(item: any, field: string = '') {
@@ -569,17 +608,64 @@ export class NgDataTableComponent {
         this.rowDBClick.emit(item);
     }
 
+    // emit change event for server side pagination
+    changeForServer(changeType: string, isResetPage = false) {
+        if (this.isServerMode) {
+            if (changeType === 'page') {
+                this.setPager();
+            }
+
+            this.setDefaultCondition();
+
+            const res = {
+                current_page: Number(isResetPage ? 1 : this.currentPage),
+                pagesize: Number(this.currentPageSize),
+                offset: Number((this.currentPage - 1) * <number>this.currentPageSize),
+                sort_column: this.currentSortColumn,
+                sort_direction: this.currentSortDirection,
+                search: this.currentSearch,
+                column_filters: this.columns,
+                change_type: changeType,
+            };
+            this.changeServer.emit(res);
+        }
+    }
+
+    // set default conditions when values exists and condition empty
+    setDefaultCondition() {
+        for (let i = 0; i < this.columns.length; i++) {
+            let d = this.columns[i];
+
+            if (d.filter && ((d.value !== undefined && d.value !== null && d.value !== '') || d.condition === 'is_null' || d.condition === 'is_not_null')) {
+                if (d.type === 'string' && d.value && !d.condition) {
+                    d.condition = 'contain';
+                }
+                if (d.type === 'number' && d.value && !d.condition) {
+                    d.condition = 'equal';
+                }
+                if (d.type === 'date' && d.value && !d.condition) {
+                    d.condition = 'equal';
+                }
+            }
+        }
+    }
+
     // methods
     reset() {
         this.columns = this.noReact(this.oldColumns);
         this.currentSearch = '';
         this.currentPage = 1;
-        this.currentPageSize = this.pageSize;
-        this.currentSortColumn = 'id';
-        this.currentSortDirection = 'asc';
+        this.currentPageSize = this.oldPageSize;
+        this.currentSortColumn = this.oldSortColumn;
+        this.currentSortDirection = this.oldSortDirection;
 
         this.clearSelectedRows();
-        this.filterRows();
+
+        if (this.isServerMode) {
+            this.changeForServer('reset', true);
+        } else {
+            this.filterRows();
+        }
     }
     getSelectedRows() {
         return this.filterItems.filter((d) => d.selected);
@@ -646,5 +732,9 @@ export class NgDataTableComponent {
 
     noReact(value: any) {
         return JSON.parse(JSON.stringify(value));
+    }
+
+    getRange(size: number): number[] {
+        return Array.from({ length: size }, (_, index) => index + 1);
     }
 }

@@ -52,8 +52,8 @@
                 </tr>
 
                 <ng-container *ngIf="!filterRowCount && currentLoader">
-                    <tr *ngFor="let k of [1,2,3,4,5,6]" class="!bh-bg-white bh-h-11 !bh-border-transparent">
-                        <td [attr.colspan]="columns.length + 1" class="!bh-p-0">
+                    <tr *ngFor="let k of getRange(pageSize)" class="!bh-bg-white bh-h-11 !bh-border-transparent">
+                        <td [attr.colspan]="columns.length + 1" class="!bh-p-0 !bh-border-transparent">
                             <div class="bh-skeleton-box bh-h-8"></div>
                         </td>
                     </tr>

@@ -1,6 +1,6 @@
 {
     "name": "@bhplugin/ng-datatable",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "description": "ng-datatable - fully customizable & easy to use datatable library",
     "private": false,
     "author": {
@@ -15,6 +15,7 @@
         "url": "https://github.com/bhaveshpatel200/ng-datatable/issues"
     },
     "homepage": "https://github.com/bhaveshpatel200/ng-datatable#readme",
+    "funding": "https://github.com/sponsors/bhaveshpatel200",
     "keywords": [
         "angular",
         "angularjs",
@@ -23,11 +24,15 @@
         "angular datatable",
         "ng datatable",
         "ng-datatable",
+        "ngx datatable",
+        "ngx-datatable",
         "angular grid",
         "angular table",
         "datagrid",
         "data-grid",
         "data-table",
+        "data grid",
+        "data table",
         "table",
         "grid",
         "filter",
