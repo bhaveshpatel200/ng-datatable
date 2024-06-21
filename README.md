@@ -126,7 +126,13 @@ export class AppComponent {
 | **totalRows**           | number                  | 0                                   | total number of rows. **_totalRows_** required when **_isServerMode_** is true                                                                                                                |
 | **skin**                | string                  | "bh-table-striped bh-table-hover"   | custom class for skin ('**bh-table-striped**' - for stripe row, '**bh-table-hover**' - for hover row, '**bh-table-bordered**' - for bordered row, '**bh-table-compact**' - for compact table) |
 | **loading**             | boolean                 | false                               | enable loader                                                                                                                                                                                 |
-| **hasCheckbox**         | boolean                 | false                               | enable checkbox                                                                                                                                                                               |
+| **hasCheckbox**         | boolean                 | false                               | enable checkbox                                                                                                               
+
+| **hasNestedTemplate**   | boolean                 | false                               | enable
+nested template
+
+| **hasNestedTemplate**   | templateRef             | TemplateRef<any>                    | pass nested template whenever necessary
+
 | **search**              | string                  | ""                                  | enable global search                                                                                                                                                                          |
 | **page**                | number                  | 1                                   | current page                                                                                                                                                                                  |
 | **pageSize**            | number                  | 10                                  | number of rows per page                                                                                                                                                                       |

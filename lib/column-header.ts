@@ -7,6 +7,15 @@ import { colDef } from './modals';
         <ng-template #template>
             <tr>
                 <th
+                    *ngIf="all.hasNestedTemplate"
+                    [class]="'bh-w-px'"
+                    [ngClass]="{
+                        'bh-sticky bh-bg-blue-light bh-z-[1]': all.stickyHeader || all.stickyFirstColumn,
+                        'bh-top-0': all.stickyHeader,
+                        'bh-left-0': all.stickyFirstColumn
+                    }"
+                ></th>
+                <th
                     *ngIf="all.hasCheckbox"
                     [class]="'bh-w-px'"
                     [ngClass]="{

@@ -11,6 +11,7 @@
 
     <ng-datatable
         #datatable
+        skin="'bh-table-compact'"
         [loading]="loading"
         [columns]="cols"
         [rows]="rows"
@@ -18,6 +19,8 @@
         [isServerMode]="true"
         [pageSize]="params.pagesize"
         [pageSizeOptions]="[3, 5, 10]"
+        [hasNestedTemplate]="true"
+        [nestedTemplate]="nestedTemplate"
         [hasCheckbox]="true"
         [sortable]="true"
         [sortColumn]="params.sort_column"
@@ -30,4 +33,8 @@
             <strong>#{{ value.id }}</strong>
         </ng-template>
     </ng-datatable>
+
+    <ng-template #nestedTemplate let-item="data">
+        <ng-datatable [columns]="nestedCols" [rows]="nestedRows" skin="'bh-table-compact'"> </ng-datatable>
+    </ng-template>
 </div>

@@ -9,6 +9,7 @@ import { IconCheckComponent } from './icon-check';
 import { IconDashComponent } from './icon-dash';
 import { IconFilterComponent } from './icon-filter';
 import { IconLoaderComponent } from './icon-loader';
+import { IconCaretComponent } from './icon-caret';
 
 // directive
 import { SlotDirective } from './slot.directive';
@@ -23,8 +24,9 @@ import { SlotDirective } from './slot.directive';
         IconDashComponent,
         IconFilterComponent,
         IconLoaderComponent,
+        IconCaretComponent,
         SlotDirective,
     ],
-    exports: [NgDataTableComponent, ColumnFilterComponent, ColumnHeaderComponent, IconCheckComponent, IconDashComponent, IconFilterComponent, IconLoaderComponent, SlotDirective],
+    exports: [NgDataTableComponent, ColumnFilterComponent, ColumnHeaderComponent, IconCheckComponent, IconDashComponent, IconFilterComponent, IconLoaderComponent, IconCaretComponent, SlotDirective],
 })
 export class DataTableModule {}

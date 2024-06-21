@@ -58,6 +58,8 @@ export class NgDataTableComponent {
     @Input() stickyFirstColumn: boolean = false;
     @Input() cloneHeaderInFooter: boolean = false;
     @Input() selectRowOnClick: boolean = false;
+    @Input() nestedTemplate: TemplateRef<any>;
+    @Input() hasNestedTemplate: boolean = false;
 
     // events
     @Output() changeServer = new EventEmitter<any>();
@@ -209,6 +211,7 @@ export class NgDataTableComponent {
             stickyFirstColumn: this.stickyFirstColumn,
             cloneHeaderInFooter: this.cloneHeaderInFooter,
             selectRowOnClick: this.selectRowOnClick,
+            hasNestedTemplate: this.hasNestedTemplate,
         };
     }
 
@@ -736,5 +739,10 @@ export class NgDataTableComponent {
 
     getRange(size: number): number[] {
         return Array.from({ length: size }, (_, index) => index + 1);
+    }
+
+    toggleNestedTable(index: number, event: Event) {
+        event.stopPropagation();
+        this.filterItems[index].showNested = !this.filterItems[index].showNested;
     }
 }

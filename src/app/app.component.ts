@@ -24,6 +24,18 @@ export class AppComponent {
         { field: 'address.city', title: 'City' },
         { field: 'isActive', title: 'Active', type: 'bool' },
     ];
+    nestedCols: Array<colDef> = [
+        { field: 'companyName', title: 'Company Name' },
+        { field: 'location', title: 'Location' },
+        { field: 'salary', title: 'Salary' },
+        { field: 'empCount', title: 'No. of employees' },
+    ];
+    nestedRows: Array<any> = [
+        { companyName: 'Solstice Systems', location: 'Austin', salary: 150000, empCount: 344354 },
+        { companyName: 'BrightStar Ventures', location: 'Chicago', salary: 200000, empCount: 13244 },
+        { companyName: 'Ezmanaged', location: 'Denver', salary: 250000, empCount: 65465 },
+        { companyName: 'Advicure', location: 'Boston', salary: 500000, empCount: 35454 },
+    ];
     rows: Array<any> = [];
     total_rows: number = 0;
     loading = false;

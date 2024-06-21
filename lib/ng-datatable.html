@@ -14,38 +14,52 @@
 
             <tbody>
                 <ng-container *ngIf="filterRowCount">
-                    <tr
-                        *ngFor="let item of filterItems; let i = index; trackBy:trackFilterItems.bind(this)"
-                        [ngClass]="[(isFunction(rowClass) ? rowClass(item) : rowClass), selectRowOnClick? 'bh-cursor-pointer':'']"
-                        (click)="onRowClick(item, i)"
-                        (dblclick)="onRowDoubleClick(item)"
-                    >
-                        <td *ngIf="hasCheckbox" [ngClass]="{'bh-sticky bh-left-0 bh-bg-blue-light': stickyFirstColumn}">
-                            <div class="bh-checkbox" (click)="$event.stopPropagation();">
-                                <input type="checkbox" value="{{item[uniqueKey] ? item[uniqueKey] : i}}" [(ngModel)]="item.selected" (change)="checkboxChange();" />
-                                <div>
-                                    <icon-check class="check"></icon-check>
+                    <ng-container *ngFor="let item of filterItems; let i = index; trackBy:trackFilterItems.bind(this)">
+                        <tr
+                            [ngClass]="[(isFunction(rowClass) ? rowClass(item) : rowClass), selectRowOnClick? 'bh-cursor-pointer':'']"
+                            (click)="onRowClick(item, i)"
+                            (dblclick)="onRowDoubleClick(item)"
+                        >
+                            <td *ngIf="hasNestedTemplate" [ngClass]="{'bh-sticky bh-left-0 bh-bg-blue-light': stickyFirstColumn}">
+                                <div (click)="toggleNestedTable(i, $event)" class="caret-container" [ngClass]="{'active': item.showNested}">
+                                    <icon-caret [rotationAngle]="item.showNested ? 360 : 270" class="caret"></icon-caret>
                                 </div>
-                            </div>
-                        </td>
-                        <ng-container *ngFor="let col of columns; let j = index">
-                            <td
-                                *ngIf="!col.hide"
-                                [ngClass]="[
+                            </td>
+                            <td *ngIf="hasCheckbox" [ngClass]="{'bh-sticky bh-left-0 bh-bg-blue-light': stickyFirstColumn}">
+                                <div class="bh-checkbox" (click)="$event.stopPropagation();">
+                                    <input type="checkbox" value="{{item[uniqueKey] ? item[uniqueKey] : i}}" [(ngModel)]="item.selected" (change)="checkboxChange();" />
+                                    <div>
+                                        <icon-check class="check"></icon-check>
+                                    </div>
+                                </div>
+                            </td>
+                            <ng-container *ngFor="let col of columns; let j = index">
+                                <td
+                                    *ngIf="!col.hide"
+                                    [ngClass]="[
                                     (isFunction(cellClass) ? cellClass(item) : cellClass),
                                     j === 0 && stickyFirstColumn ? 'bh-sticky bh-left-0 bh-bg-blue-light' : '',
                                     hasCheckbox && j === 0 && stickyFirstColumn ? 'bh-left-[52px]' : '',
                                     col.cellClass ? col.cellClass : ''
                                     ]"
-                            >
-                                <ng-container *ngIf="hasSlot(col.field)">
-                                    <ng-container [ngTemplateOutlet]="getSlot(col.field)" [ngTemplateOutletContext]="{ data: item }"></ng-container>
-                                </ng-container>
-                                <div *ngIf="!hasSlot(col.field) && col.cellRenderer" [innerHTML]="sanitizeHtml(col.cellRenderer(item))"></div>
-                                <ng-container *ngIf="!hasSlot(col.field) && !col.cellRenderer"> {{ cellValue(item, col.field) }} </ng-container>
-                            </td>
+                                >
+                                    <ng-container *ngIf="hasSlot(col.field)">
+                                        <ng-container [ngTemplateOutlet]="getSlot(col.field)" [ngTemplateOutletContext]="{ data: item }"></ng-container>
+                                    </ng-container>
+                                    <div *ngIf="!hasSlot(col.field) && col.cellRenderer" [innerHTML]="sanitizeHtml(col.cellRenderer(item))"></div>
+                                    <ng-container *ngIf="!hasSlot(col.field) && !col.cellRenderer"> {{ cellValue(item, col.field) }} </ng-container>
+                                </td>
+                            </ng-container>
+                        </tr>
+
+                        <ng-container *ngIf="item.showNested">
+                            <tr class="nested-template">
+                                <td [attr.colspan]="columns.length + 1">
+                                    <ng-container *ngTemplateOutlet="nestedTemplate; context: { data: item }"></ng-container>
+                                </td>
+                            </tr>
                         </ng-container>
-                    </tr>
+                    </ng-container>
                 </ng-container>
                 <tr *ngIf="!filterRowCount && !currentLoader">
                     <td [attr.colspan]="columns.length + 1">{{ noDataContent }}</td>

@@ -9,6 +9,7 @@ export * from './lib/icon-check';
 export * from './lib/icon-dash';
 export * from './lib/icon-filter';
 export * from './lib/icon-loader';
+export * from './lib/icon-caret';
 
 export * from './lib/modals';
 export * from './lib/slot.directive';
