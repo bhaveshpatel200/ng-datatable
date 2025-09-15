@@ -46,6 +46,17 @@
                             </td>
                         </ng-container>
                     </tr>
+                    <!-- Footer row -->
+                    <tr *ngIf="showFooterRow" class="footer-row">
+                        <td *ngIf="hasCheckbox"></td>
+                        <ng-container *ngFor="let col of columns; let j = index">
+                            <td *ngIf="!col.hide">
+                                <ng-container *ngIf="hasSlot(col.field + '_footer')">
+                                    <ng-container [ngTemplateOutlet]="getSlot(col.field + '_footer')" [ngTemplateOutletContext]="{ data: col }"></ng-container>
+                                </ng-container>
+                            </td>
+                        </ng-container>
+                    </tr>
                 </ng-container>
                 <tr *ngIf="!filterRowCount && !currentLoader">
                     <td [attr.colspan]="columns.length + 1">{{ noDataContent }}</td>

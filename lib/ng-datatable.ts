@@ -58,6 +58,7 @@ export class NgDataTableComponent {
     @Input() stickyFirstColumn: boolean = false;
     @Input() cloneHeaderInFooter: boolean = false;
     @Input() selectRowOnClick: boolean = false;
+    @Input() showFooterRow: boolean = false;
 
     // events
     @Output() changeServer = new EventEmitter<any>();
@@ -209,6 +210,7 @@ export class NgDataTableComponent {
             stickyFirstColumn: this.stickyFirstColumn,
             cloneHeaderInFooter: this.cloneHeaderInFooter,
             selectRowOnClick: this.selectRowOnClick,
+            showFooterRow: this.showFooterRow,
         };
     }
 
